@@ -1,14 +1,15 @@
 from fastapi import FastAPI
+from uuid import uuid4
 from requests import get, post
-from models.patient import PatientInfoModel, PatientMedicalInfoModel, PatientTransferModel
-from utils.helper import evaluate_patient_transfer_dept
+from models.patient import PatientInfoModel, PatientMedicalInfoModel, PatientTransferModel, PatientOnboardCompleteModel
+from utils.helper import evaluate_patient_transfer_dept, evaluate_bed_availability
 
 app = FastAPI()
 
-@app.post("/patient_onboard_start")
+@app.post("/patient_onboard_start", response_model=PatientOnboardCompleteModel)
 async def patient_onboard_start(patient_info: PatientInfoModel):
   """Patient onboard service start"""
-  # submit the info to the patient_mgnt_svc on the cluster to get the patient ID, if exists
+  # 1. →→ submit the info to the patient_mgnt_svc on the cluster to get the patient ID, if exists
   # otherwise, the service register the patient and return the info
 
   # response = post("http://hms_patient_mgmt_svc/patients", json=patient_info)
@@ -16,12 +17,20 @@ async def patient_onboard_start(patient_info: PatientInfoModel):
   if response:
     resp = response.json()
     medical_info = resp["data"]["medical_info"]
-    # print(medical_info)
-    # send onboarding completed msg
     
-    # evaluate what type of service is needed i.e. EMG (emergency)/IPD/OPD, and forward to the respective service
-    eval_result: PatientTransferModel = evaluate_patient_transfer_dept(PatientMedicalInfoModel(**medical_info))
-    return {
-      "error": False,
-      "data": eval_result
-    }
+    # 2. →→ evaluate what type of service is needed i.e. EMG (emergency)/IPD/OPD, and forward to the respective service
+    eval_result: map = evaluate_patient_transfer_dept(PatientMedicalInfoModel(**medical_info))
+
+    # 3. →→ check with the BED MONITORING svc first, to see available bed for {target} department
+    bed_response = get(f"http://localhost:8081/beds/bed_{eval_result['transfer_to_dept']}")
+    bed_data = bed_response.json()["data"]
+
+    eval_resp = evaluate_bed_availability(bed_data)
+
+    # 4. →→ if bed is available, then queue the patient for {TARGET} department
+    # use Kafka topic to publish message about admission/appointment
+    # publish another message to Kafka topic / AWS SNS about onboard completion
+
+    # 5. →→ return the onboard complete response
+    onboard_complete_data = PatientOnboardCompleteModel(patient_id=medical_info["patientId"], transfer_to_dept=eval_result['transfer_to_dept'], visit_id=str(uuid4()))
+    return onboard_complete_data

@@ -23,3 +23,8 @@ class PatientInfoModel(BaseModel):
 class PatientTransferModel(BaseModel):
   patient_id: str
   transfer_to_dept: str
+
+class PatientOnboardCompleteModel(BaseModel):
+  patient_id: str
+  transfer_to_dept: str
+  visit_id: str
