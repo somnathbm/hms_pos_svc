@@ -6,14 +6,13 @@ from utils.helper import evaluate_patient_transfer_dept, evaluate_bed_availabili
 
 app = FastAPI()
 
-@app.post("/patient_onboard_start", response_model=PatientOnboardCompleteModel)
+@app.post("/patient-onboard-start", response_model=PatientOnboardCompleteModel)
 async def patient_onboard_start(patient_info: PatientInfoModel):
   """Patient onboard service start"""
   # 1. →→ submit the info to the patient_mgnt_svc on the cluster to get the patient ID, if exists
   # otherwise, the service register the patient and return the info
 
-  # response = post("http://hms_patient_mgmt_svc/patients", json=patient_info)
-  response = post("http://localhost:8080/patients", json=patient_info.model_dump(exclude_none=True))
+  response = post("http://hms-patient-mgmt-svc/patients", json=patient_info.model_dump(exclude_none=True))
   if response:
     resp = response.json()
     medical_info = resp["data"]["medical_info"]
@@ -22,7 +21,7 @@ async def patient_onboard_start(patient_info: PatientInfoModel):
     eval_result: map = evaluate_patient_transfer_dept(PatientMedicalInfoModel(**medical_info))
 
     # 3. →→ check with the BED MONITORING svc first, to see available bed for {target} department
-    bed_response = get(f"http://localhost:8081/beds/bed_{eval_result['transfer_to_dept']}")
+    bed_response = get(f"http://hms-bed-monitor-svc/beds/bed_{eval_result['transfer_to_dept']}")
     bed_data = bed_response.json()["data"]
 
     eval_resp = evaluate_bed_availability(bed_data)

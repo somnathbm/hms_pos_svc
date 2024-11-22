@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hms-pos-svc
+spec:
+  selector:
+    app: hms-pos-pod
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hms-pos-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hms-pos-pod
+  template:
+    metadata:
+      labels:
+        app: hms-pos-pod
+    spec:
+      containers:
+        - name: hms_pos-app
+          image: somnathbm/hms-pos-svc:v0.0.1
+          ports:
+          - containerPort: 8000

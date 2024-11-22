@@ -1,0 +1,25 @@
+name: HMS-POS-SVC-CI-workflow
+run-name: HMS-POS-SVC-CI-workflow
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  publish-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Build & publish the image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./src
+          push: true
+          tags: somnathbm/hms-pos-svc:${{github.ref_name}}
