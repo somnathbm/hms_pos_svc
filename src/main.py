@@ -20,16 +20,17 @@ async def patient_onboard_start(patient_info: PatientInfoModel):
     
     # 2. →→ evaluate what type of service is needed i.e. EMG (emergency)/IPD/OPD, and forward to the respective service
     eval_result: map = evaluate_patient_transfer_dept(PatientMedicalInfoModel(**medical_info))
-    print(eval_result)
+    print(eval_result['transfer_to_dept'])
 
     # 3. →→ check with the BED MONITORING svc first, to see available bed for {target} department
     # bed_response = get(f"http://hms-bed-monitor-svc-{os.getenv("CURR_ENV")}.{os.getenv("CURR_NS")}/beds/bed_{eval_result['transfer_to_dept']}")
-    # bed_data = bed_response.json()["data"]
+    bed_response = get(f"http://hms-bed-monitor-svc-{os.getenv("CURR_ENV")}.{os.getenv("CURR_NS")}/beds/bed_emg")
+    bed_data = bed_response.json()["data"]
 
-    # eval_resp = evaluate_bed_availability(bed_data)
+    eval_resp = evaluate_bed_availability(bed_data)
 
     # 4. →→ if bed is available, then queue the patient for {TARGET} department
-    # use Kafka topic to publish message about admission/appointment
+    # use Kafka topic / AWS SQS to publish message about admission/appointment
     # publish another message to Kafka topic / AWS SNS about onboard completion
 
     # 5. →→ return the onboard complete response
