@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hms-pos-depl
+spec:
+  template:
+    metadata:
+      labels:
+        app: hms-pos-pod
+    spec:
+      containers:
+        - name: hms-pos-app
+          env:
+          - name: CURR_ENV
+            value: dev
+          - name: CURR_NS
+            value: hms-dev

@@ -26,7 +26,7 @@ spec:
         app: hms-pos-pod
     spec:
       containers:
-        - name: hms_pos-app
-          image: somnathbm/hms-pos-svc:v0.0.1
+        - name: hms-pos-app
+          image: somnathbm/hms-pos-svc:v0.0.8
           ports:
           - containerPort: 8000
