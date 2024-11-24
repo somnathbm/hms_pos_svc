@@ -16,7 +16,7 @@ def evaluate_patient_transfer_dept(patient_medical_info: PatientMedicalInfoModel
 
 
 # Evaluate bed availabiity
-def evaluate_bed_availability(bed_info: map):
-  """Evaluate bed availabiity"""
+def check_bed_availability(bed_info: map):
+  """Check bed availabiity"""
   # at least 1 bed should be available for patient transfer to admission
   return True if int(bed_info["available"]["Value"]) >= 1 else False
