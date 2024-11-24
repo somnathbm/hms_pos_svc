@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from uuid import uuid4
 from requests import get, post
@@ -12,7 +13,7 @@ async def patient_onboard_start(patient_info: PatientInfoModel):
   # 1. →→ submit the info to the patient_mgnt_svc on the cluster to get the patient ID, if exists
   # otherwise, the service register the patient and return the info
 
-  response = post("http://hms-patient-mgmt-svc/patients", json=patient_info.model_dump(exclude_none=True))
+  response = post(f"http://hms-patient-mgmt-svc-{os.getenv("CURR_ENV")}/patients", json=patient_info.model_dump(exclude_none=True))
   if response:
     resp = response.json()
     medical_info = resp["data"]["medical_info"]
@@ -21,7 +22,7 @@ async def patient_onboard_start(patient_info: PatientInfoModel):
     eval_result: map = evaluate_patient_transfer_dept(PatientMedicalInfoModel(**medical_info))
 
     # 3. →→ check with the BED MONITORING svc first, to see available bed for {target} department
-    bed_response = get(f"http://hms-bed-monitor-svc/beds/bed_{eval_result['transfer_to_dept']}")
+    bed_response = get(f"http://hms-bed-monitor-svc-{os.getenv("CURR_ENV")}/beds/bed_{eval_result['transfer_to_dept']}")
     bed_data = bed_response.json()["data"]
 
     eval_resp = evaluate_bed_availability(bed_data)
