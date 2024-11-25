@@ -11,3 +11,9 @@ patches:
       kind: Deployment
       name: hms-pos-depl
     path: patch-env.yaml
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: hms-pos-depl
+    path: patch-service-account.yaml

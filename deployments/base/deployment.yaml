@@ -25,6 +25,7 @@ spec:
       labels:
         app: hms-pos-pod
     spec:
+      serviceAccountName: hms-pods-sa
       containers:
         - name: hms-pos-app
           image: somnathbm/hms-pos-svc:v0.0.8

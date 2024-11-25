@@ -13,5 +13,3 @@ spec:
           env:
           - name: CURR_ENV
             value: dev
-          - name: CURR_NS
-            value: hms-dev
