@@ -28,3 +28,8 @@ class PatientOnboardCompleteModel(BaseModel):
   patient_id: str
   transfer_to_dept: str
   visit_id: str
+
+class PatientOnboardFailureModel(BaseModel):
+  patient_id: str
+  failure_reason: str
+  on_hold: bool
