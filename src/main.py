@@ -5,7 +5,9 @@ from requests import get, post
 from models.patient import PatientInfoModel, PatientMedicalInfoModel, PatientOnboardCompleteModel, PatientOnboardFailureModel
 from utils.helper import evaluate_patient_transfer_dept, check_bed_availability, notify_internal_patient_dept
 
-app = FastAPI()
+app = FastAPI(
+  root_path="/pos"
+)
 
 @app.post("/patient-onboard-start", response_model=PatientOnboardCompleteModel | PatientOnboardFailureModel)
 async def patient_onboard_start(patient_info: PatientInfoModel):
