@@ -49,3 +49,7 @@ async def test_sqs():
   }
   result = notify_internal_patient_dept(fake_med_data)
   return {"status": "ok!"}
+
+@app.get("/healthy")
+async def health_check():
+  return {"status": "ok!"}
