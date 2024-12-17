@@ -5,7 +5,6 @@ metadata:
 spec:
   selector:
     app: hms-pos-pod
-  type: ClusterIP
   ports:
   - protocol: TCP
     port: 80
@@ -28,6 +27,12 @@ spec:
       serviceAccountName: hms-pods-sa
       containers:
         - name: hms-pos-app
-          image: somnathbm/hms-pos-svc:v0.0.10
+          image: somnathbm/hms-pos-svc:v0.0.12
           ports:
           - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /pos/healthy
+              port: 8000
+            periodSeconds: 20
+            initialDelaySeconds: 10
