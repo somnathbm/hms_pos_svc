@@ -25,7 +25,7 @@ async def patient_onboard_start(patient_info: PatientInfoModel):
     eval_result: map = evaluate_patient_transfer_dept(PatientMedicalInfoModel(**medical_info))
 
     # 3. →→ check with the BED MONITORING svc first, to see available bed for {target} department
-    bed_response = get(f"http://hms-bed-monitor-svc-{os.getenv("CURR_ENV")}/beds/bed_{eval_result['transfer_to_dept']}")
+    bed_response = get(f"http://hms-bed-monitor-svc-{os.getenv("CURR_ENV")}/bm/beds/bed_{eval_result['transfer_to_dept']}")
     bed_data = bed_response.json()["data"]
 
     is_bed_available: bool = check_bed_availability(bed_data)
