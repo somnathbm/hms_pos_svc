@@ -9,13 +9,14 @@ app = FastAPI(
   root_path="/pos"
 )
 
-@app.post("/patient-onboard-start", response_model=PatientOnboardCompleteModel | PatientOnboardFailureModel)
+@app.post("/patient-onboard-start")
 async def patient_onboard_start(patient_info: PatientInfoModel):
   """Patient onboard service start"""
   # 1. →→ submit the info to the patient_mgnt_svc on the cluster to get the patient ID, if exists
   # otherwise, the service register the patient and return the info
 
-  response = post(f"http://hms-patient-mgmt-svc-{os.getenv("CURR_ENV")}/patients", json=patient_info.model_dump(exclude_none=True))
+  response = post(f"http://hms-patient-mgmt-svc-{os.getenv("CURR_ENV")}/pm/patients", json=patient_info.model_dump(exclude_none=True))
+  # response = post(f"http://localhost:8080/pm/patients", json=patient_info.model_dump(exclude_none=True))
   if response:
     resp = response.json()
     medical_info = resp["data"]["medical_info"]
@@ -37,10 +38,11 @@ async def patient_onboard_start(patient_info: PatientInfoModel):
     # 4. →→ if bed is available, then queue the patient for {TARGET} department
     # use Kafka topic / AWS SQS to publish message about admission/appointment
     # publish another message to Kafka topic / AWS SNS about onboard completion
-    notify_internal_patient_dept(eval_result)
+    # notify_internal_patient_dept(eval_result)
 
     # 5. →→ return the onboard complete response
     return PatientOnboardCompleteModel(patient_id=medical_info["patientId"], transfer_to_dept=eval_result['transfer_to_dept'], visit_id=str(uuid4()))
+    # return {"data": "ok"}
 
 
 @app.get("/test-sqs")
